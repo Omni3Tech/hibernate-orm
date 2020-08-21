@@ -41,9 +41,17 @@ public class HibernatePlugin implements Plugin<Project> {
 		for ( final SourceSet sourceSet : hibernateExtension.getSourceSets() ) {
 			project.getLogger().debug( "Applying Hibernate enhancement action to SourceSet.{}", sourceSet.getName() );
 
-			final Task compileTask = project.getTasks().findByName( sourceSet.getCompileJavaTaskName() );
-			assert compileTask != null;
-			compileTask.doLast(
+			final Task javaTask = project.getTasks().findByName( sourceSet.getCompileJavaTaskName() );
+
+			assert javaTask != null;
+			javaTask.doLast(
+					task -> EnhancementHelper.enhance( sourceSet, hibernateExtension.enhance, project )
+			);
+
+			final Task kotlinTask = project.getTasks().findByName( "compileKotlin" );
+
+			assert kotlinTask != null;
+			kotlinTask.doLast(
 					task -> EnhancementHelper.enhance( sourceSet, hibernateExtension.enhance, project )
 			);
 		}
